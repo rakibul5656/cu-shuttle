@@ -1,10 +1,162 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>CU Shuttle Tracking</title>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <style>
+
+        body {
+            font-family: Arial, sans-serif;
+            padding: 25px;
+            text-align: center;
+        }
+
+        button {
+            padding: 14px 25px;
+            font-size: 17px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        #location {
+            margin-top: 25px;
+            text-align: left;
+        }
+
+    </style>
+
 </head>
+
 <body>
 
+    <h2>🚌 CU Shuttle Live</h2>
+
+    <p>
+        GPS tracking শুরু করতে নিচের button চাপুন।
+    </p>
+
+    <button onclick="startTracking()">
+        📍 Start GPS
+    </button>
+
+    <div id="location">
+        Location পাওয়া যায়নি।
+    </div>
+
+
+<script>
+
+    const tg = window.Telegram.WebApp;
+
+    tg.ready();
+    tg.expand();
+
+
+    function startTracking() {
+
+        if (!navigator.geolocation) {
+
+            document.getElementById("location").innerHTML =
+                "❌ এই device GPS support করে না।";
+
+            return;
+        }
+
+
+        navigator.geolocation.watchPosition(
+
+            function(position) {
+
+                const latitude =
+                    position.coords.latitude;
+
+                const longitude =
+                    position.coords.longitude;
+
+                const accuracy =
+                    position.coords.accuracy;
+
+                const speed =
+                    position.coords.speed;
+
+                const heading =
+                    position.coords.heading;
+
+
+                document.getElementById("location").innerHTML = `
+
+                    <b>📍 Location Found</b>
+
+                    <br><br>
+
+                    Latitude:
+                    ${latitude}
+
+                    <br>
+
+                    Longitude:
+                    ${longitude}
+
+                    <br>
+
+                    Accuracy:
+                    ${accuracy} meters
+
+                    <br>
+
+                    Speed:
+                    ${speed}
+
+                    <br>
+
+                    Heading:
+                    ${heading}
+
+                `;
+
+                console.log({
+                    latitude,
+                    longitude,
+                    accuracy,
+                    speed,
+                    heading
+                });
+
+            },
+
+
+            function(error) {
+
+                document.getElementById("location").innerHTML =
+
+                    "❌ GPS Error: " + error.message;
+
+            },
+
+
+            {
+                enableHighAccuracy: true,
+                maximumAge: 5000,
+                timeout: 10000
+            }
+
+        );
+
+    }
+
+</script>
+
 </body>
+
 </html>
