@@ -61,7 +61,7 @@ async def button_handler(
                 InlineKeyboardButton(
                     "📍 Start Tracking",
                     web_app=WebAppInfo(
-                        url="https://YOUR-DOMAIN.com"
+                        url="https://github.com/rakibul5656/cu-shuttle/blob/main/index.html"
                     )
                 )
             ]
@@ -80,7 +80,7 @@ async def button_handler(
                 InlineKeyboardButton(
                     "📍 Start Tracking",
                     web_app=WebAppInfo(
-                        url="https://YOUR-DOMAIN.com"
+                        url="https://github.com/rakibul5656/cu-shuttle/blob/main/index.html"
                     )
                 )
             ]
