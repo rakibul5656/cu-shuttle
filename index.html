@@ -1,202 +1,233 @@
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
 
     <meta
         name="viewport"
-        content="width=device-width, initial-scale=1.0"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
     >
 
     <title>CU Shuttle Live</title>
 
-
-    <!-- Telegram Web App SDK -->
-
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
+    <script src="https://telegram.org/js/telegram-web-app.js?63"></script>
 
     <style>
-
         * {
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
-
+        html,
         body {
-
             margin: 0;
-
-            padding: 20px;
-
-            font-family:
-                Arial,
-                Helvetica,
-                sans-serif;
-
+            padding: 0;
+            width: 100%;
+            min-height: 100%;
+            font-family: Arial, Helvetica, sans-serif;
             background: #f5f7fa;
-
             color: #1f2937;
         }
 
+        body {
+            padding: 12px;
+        }
 
         .container {
-
+            width: 100%;
             max-width: 500px;
-
-            margin: auto;
-
+            margin: 0 auto;
             background: white;
-
-            padding: 25px;
-
-            border-radius: 16px;
-
-            box-shadow:
-                0 4px 15px
-                rgba(0, 0, 0, 0.08);
-
+            padding: 20px;
+            border-radius: 18px;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.08);
         }
-
 
         h2 {
-
-            margin-top: 0;
-
             text-align: center;
+            margin: 0 0 8px 0;
+            font-size: 23px;
         }
 
+        .subtitle {
+            text-align: center;
+            color: #64748b;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
 
         .route {
-
             text-align: center;
-
-            font-size: 20px;
-
+            font-size: 21px;
             font-weight: bold;
-
-            margin: 20px 0;
-
+            background: #eff6ff;
+            color: #1d4ed8;
+            padding: 13px;
+            border-radius: 12px;
+            margin-bottom: 15px;
         }
-
 
         .status {
-
-            padding: 15px;
-
-            border-radius: 10px;
-
+            padding: 16px;
+            border-radius: 12px;
             background: #f1f5f9;
-
-            margin-top: 15px;
-
             line-height: 1.7;
-
+            font-size: 15px;
+            word-break: break-word;
         }
-
-
-        button {
-
-            width: 100%;
-
-            padding: 15px;
-
-            margin-top: 20px;
-
-            border: none;
-
-            border-radius: 10px;
-
-            font-size: 17px;
-
-            font-weight: bold;
-
-            cursor: pointer;
-        }
-
-
-        .start {
-
-            background: #2563eb;
-
-            color: white;
-        }
-
-
-        .stop {
-
-            background: #dc2626;
-
-            color: white;
-
-            display: none;
-        }
-
 
         .success {
-
             color: #15803d;
-
             font-weight: bold;
         }
-
 
         .error {
-
             color: #dc2626;
-
             font-weight: bold;
         }
 
+        .warning {
+            color: #b45309;
+            font-weight: bold;
+        }
 
         .info {
-
             color: #475569;
         }
 
+        .location-box {
+            margin-top: 15px;
+            padding: 14px;
+            border-radius: 12px;
+            background: #f8fafc;
+            display: none;
+        }
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 5px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .row:last-child {
+            border-bottom: none;
+        }
+
+        .label {
+            color: #64748b;
+        }
+
+        .value {
+            font-weight: bold;
+            text-align: right;
+        }
+
+        button {
+            width: 100%;
+            border: none;
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 15px;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+
+        .start {
+            background: #2563eb;
+            color: white;
+        }
+
+        .start:active {
+            transform: scale(0.98);
+        }
+
+        .stop {
+            background: #dc2626;
+            color: white;
+            display: none;
+        }
+
+        .retry {
+            background: #f59e0b;
+            color: white;
+            display: none;
+        }
+
+        .small {
+            text-align: center;
+            font-size: 12px;
+            color: #94a3b8;
+            margin-top: 15px;
+        }
     </style>
-
 </head>
-
 
 <body>
 
-
 <div class="container">
 
+    <h2>🚌 CU Shuttle Live</h2>
 
-    <h2>
-        🚌 CU Shuttle Live
-    </h2>
+    <div class="subtitle">
+        Live location tracking
+    </div>
 
-
-    <div
-        id="route"
-        class="route"
-    >
+    <div id="route" class="route">
         Loading route...
     </div>
 
-
-    <div
-        id="status"
-        class="status info"
-    >
-        GPS tracking এখনো শুরু হয়নি।
+    <div id="status" class="status info">
+        📍 Tracking শুরু করার জন্য নিচের button চাপুন।
     </div>
 
+    <div id="locationBox" class="location-box">
+
+        <div class="row">
+            <span class="label">Latitude</span>
+            <span id="latitude" class="value">—</span>
+        </div>
+
+        <div class="row">
+            <span class="label">Longitude</span>
+            <span id="longitude" class="value">—</span>
+        </div>
+
+        <div class="row">
+            <span class="label">Accuracy</span>
+            <span id="accuracy" class="value">—</span>
+        </div>
+
+        <div class="row">
+            <span class="label">Speed</span>
+            <span id="speed" class="value">—</span>
+        </div>
+
+        <div class="row">
+            <span class="label">Updated</span>
+            <span id="updated" class="value">—</span>
+        </div>
+
+    </div>
 
     <button
         id="startButton"
         class="start"
         onclick="startTracking()"
     >
-        📍 Allow Location & Start Tracking
+        📍 Start Tracking
     </button>
 
+    <button
+        id="retryButton"
+        class="retry"
+        onclick="startTracking()"
+    >
+        🔄 Try Again
+    </button>
 
     <button
         id="stopButton"
@@ -206,400 +237,866 @@
         🛑 Stop Tracking
     </button>
 
+    <div class="small">
+        Your location is used only for estimating shuttle position.
+    </div>
 
 </div>
 
 
 <script>
 
+    // =========================================================
+    // TELEGRAM MINI APP
+    // =========================================================
 
-// ============================================================
-// TELEGRAM WEB APP
-// ============================================================
+    const tg = window.Telegram.WebApp;
 
-const tg = window.Telegram.WebApp;
-
-
-tg.ready();
-
-tg.expand();
+    tg.ready();
+    tg.expand();
 
 
-// ============================================================
-// GET ROUTE
-// ============================================================
+    // =========================================================
+    // ROUTE
+    // =========================================================
 
-const params = new URLSearchParams(
-    window.location.search
-);
+    const params = new URLSearchParams(window.location.search);
 
+    const route = params.get("route");
 
-const route = params.get("route");
+    const routeElement = document.getElementById("route");
 
+    if (route === "cu_nm") {
 
-const routeElement =
-    document.getElementById("route");
+        routeElement.innerText = "🚍 Shuttle CU → NM";
 
+    }
+    else if (route === "nm_cu") {
 
-if (route === "cu_nm") {
+        routeElement.innerText = "🚍 Shuttle NM → CU";
 
-    routeElement.innerText =
-        "🚍 Shuttle CU → NM";
+    }
+    else {
 
-}
+        routeElement.innerText = "⚠️ Route not selected";
 
-
-else if (route === "nm_cu") {
-
-    routeElement.innerText =
-        "🚍 Shuttle NM → CU";
-
-}
-
-
-else {
-
-    routeElement.innerText =
-        "⚠️ Route not selected";
-
-}
-
-
-// ============================================================
-// ELEMENTS
-// ============================================================
-
-const statusElement =
-    document.getElementById("status");
-
-
-const startButton =
-    document.getElementById("startButton");
-
-
-const stopButton =
-    document.getElementById("stopButton");
-
-
-// ============================================================
-// GPS WATCH ID
-// ============================================================
-
-let watchId = null;
-
-
-// ============================================================
-// START TRACKING
-// ============================================================
-
-function startTracking() {
-
-
-    // --------------------------------------------------------
-    // Check route
-    // --------------------------------------------------------
-
-    if (
-        route !== "cu_nm" &&
-        route !== "nm_cu"
-    ) {
-
-        statusElement.innerHTML =
-            "❌ Route নির্বাচন করা হয়নি।";
-
-        statusElement.className =
-            "status error";
-
-        return;
     }
 
 
-    // --------------------------------------------------------
-    // Check GPS support
-    // --------------------------------------------------------
+    // =========================================================
+    // UI ELEMENTS
+    // =========================================================
 
-    if (!navigator.geolocation) {
+    const statusElement =
+        document.getElementById("status");
+
+    const startButton =
+        document.getElementById("startButton");
+
+    const stopButton =
+        document.getElementById("stopButton");
+
+    const retryButton =
+        document.getElementById("retryButton");
+
+    const locationBox =
+        document.getElementById("locationBox");
+
+    const latitudeElement =
+        document.getElementById("latitude");
+
+    const longitudeElement =
+        document.getElementById("longitude");
+
+    const accuracyElement =
+        document.getElementById("accuracy");
+
+    const speedElement =
+        document.getElementById("speed");
+
+    const updatedElement =
+        document.getElementById("updated");
+
+
+    // =========================================================
+    // VARIABLES
+    // =========================================================
+
+    let browserWatchId = null;
+
+    let tracking = false;
+
+    let usingTelegramLocation = false;
+
+
+    // =========================================================
+    // START TRACKING
+    // =========================================================
+
+    function startTracking() {
+
+        if (route !== "cu_nm" && route !== "nm_cu") {
+
+            showError(
+                "❌ Route নির্বাচন করা হয়নি।"
+            );
+
+            return;
+        }
+
+
+        tracking = true;
+
+        startButton.style.display = "none";
+
+        retryButton.style.display = "none";
+
+        stopButton.style.display = "block";
+
 
         statusElement.innerHTML =
-            "❌ এই device/browser GPS support করে না।";
+            "📡 Location permission চাওয়া হচ্ছে...";
 
         statusElement.className =
-            "status error";
+            "status info";
 
-        return;
+
+        /*
+         * FIRST:
+         * Try Telegram's native LocationManager.
+         */
+
+        if (
+            tg.LocationManager &&
+            typeof tg.LocationManager.init === "function"
+        ) {
+
+            startTelegramLocation();
+
+        }
+
+        /*
+         * FALLBACK:
+         * Browser GPS
+         */
+
+        else {
+
+            startBrowserLocation();
+
+        }
+
     }
 
 
-    // --------------------------------------------------------
-    // UI
-    // --------------------------------------------------------
+    // =========================================================
+    // TELEGRAM LOCATION
+    // =========================================================
 
-    statusElement.innerHTML =
-        "📡 GPS location নেওয়া হচ্ছে...";
+    function startTelegramLocation() {
 
-    statusElement.className =
-        "status info";
+        try {
 
+            tg.LocationManager.init(function () {
 
-    startButton.style.display =
-        "none";
-
-
-    stopButton.style.display =
-        "block";
+                if (!tracking) {
+                    return;
+                }
 
 
-    // --------------------------------------------------------
-    // Start GPS watcher
-    // --------------------------------------------------------
+                /*
+                 * Check whether location is available.
+                 */
 
-    watchId =
-        navigator.geolocation.watchPosition(
+                if (
+                    !tg.LocationManager.isLocationAvailable
+                ) {
 
-            handleLocation,
+                    statusElement.innerHTML =
+                        "⚠️ Telegram location service পাওয়া যাচ্ছে না।<br><br>" +
+                        "Browser GPS চেষ্টা করা হচ্ছে...";
 
-            handleLocationError,
+                    startBrowserLocation();
+
+                    return;
+
+                }
+
+
+                /*
+                 * If permission is already granted,
+                 * request location immediately.
+                 */
+
+                requestTelegramLocation();
+
+            });
+
+        }
+        catch (error) {
+
+            console.error(
+                "Telegram LocationManager error:",
+                error
+            );
+
+            startBrowserLocation();
+
+        }
+
+    }
+
+
+    // =========================================================
+    // REQUEST TELEGRAM LOCATION
+    // =========================================================
+
+    function requestTelegramLocation() {
+
+        if (!tracking) {
+            return;
+        }
+
+
+        statusElement.innerHTML =
+            "📍 GPS location নেওয়া হচ্ছে...";
+
+
+        try {
+
+            tg.LocationManager.getLocation(
+                function (location) {
+
+                    if (!tracking) {
+                        return;
+                    }
+
+
+                    /*
+                     * Permission denied / no location
+                     */
+
+                    if (!location) {
+
+                        statusElement.innerHTML =
+                            "⚠️ Telegram location পাওয়া যায়নি।<br><br>" +
+                            "Browser GPS চেষ্টা করা হচ্ছে...";
+
+                        startBrowserLocation();
+
+                        return;
+
+                    }
+
+
+                    /*
+                     * SUCCESS
+                     */
+
+                    usingTelegramLocation = true;
+
+                    handleTelegramLocation(location);
+
+
+                    /*
+                     * Telegram locationRequested event
+                     * will provide future updates.
+                     */
+
+                }
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "getLocation error:",
+                error
+            );
+
+            startBrowserLocation();
+
+        }
+
+    }
+
+
+    // =========================================================
+    // TELEGRAM LOCATION UPDATE EVENT
+    // =========================================================
+
+    if (tg.LocationManager) {
+
+        tg.LocationManager.onEvent(
+            "locationRequested",
+            function (event) {
+
+                if (!tracking) {
+                    return;
+                }
+
+                if (
+                    event &&
+                    event.locationData
+                ) {
+
+                    usingTelegramLocation = true;
+
+                    handleTelegramLocation(
+                        event.locationData
+                    );
+
+                }
+
+            }
+        );
+
+    }
+
+
+    // =========================================================
+    // HANDLE TELEGRAM LOCATION
+    // =========================================================
+
+    function handleTelegramLocation(location) {
+
+        const latitude =
+            location.latitude;
+
+        const longitude =
+            location.longitude;
+
+        const accuracy =
+            location.horizontal_accuracy;
+
+        const speed =
+            location.speed;
+
+        const course =
+            location.course;
+
+
+        showLocation(
+            latitude,
+            longitude,
+            accuracy,
+            speed,
+            course
+        );
+
+
+        /*
+         * IMPORTANT:
+         *
+         * Phase 3-এ এখান থেকেই
+         * location server-এ পাঠাব।
+         *
+         * Example:
+         *
+         * sendLocationToServer(...)
+         */
+
+    }
+
+
+    // =========================================================
+    // BROWSER GPS FALLBACK
+    // =========================================================
+
+    function startBrowserLocation() {
+
+        if (!navigator.geolocation) {
+
+            showError(
+                "❌ এই device-এ GPS support পাওয়া যায়নি।"
+            );
+
+            return;
+
+        }
+
+
+        statusElement.innerHTML =
+            "📡 Device GPS চালু হচ্ছে...";
+
+
+        /*
+         * First attempt:
+         * FAST GPS / network-assisted location
+         */
+
+        navigator.geolocation.getCurrentPosition(
+
+            function (position) {
+
+                if (!tracking) {
+                    return;
+                }
+
+
+                handleBrowserLocation(position);
+
+
+                /*
+                 * First location পাওয়ার পর
+                 * continuous tracking শুরু।
+                 */
+
+                startBrowserWatch();
+
+            },
+
+            function (error) {
+
+                console.log(
+                    "Fast GPS failed:",
+                    error
+                );
+
+
+                /*
+                 * Second attempt:
+                 * High accuracy GPS
+                 */
+
+                navigator.geolocation.getCurrentPosition(
+
+                    function (position) {
+
+                        if (!tracking) {
+                            return;
+                        }
+
+                        handleBrowserLocation(
+                            position
+                        );
+
+                        startBrowserWatch();
+
+                    },
+
+                    function (secondError) {
+
+                        console.error(
+                            "GPS failed:",
+                            secondError
+                        );
+
+                        showLocationError(
+                            secondError
+                        );
+
+                    },
+
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 30000,
+                        maximumAge: 10000
+                    }
+
+                );
+
+            },
 
             {
+                /*
+                 * FAST FIRST FIX
+                 */
 
-                enableHighAccuracy: true,
-
-                maximumAge: 5000,
-
-                timeout: 15000
-
+                enableHighAccuracy: false,
+                timeout: 8000,
+                maximumAge: 30000
             }
 
         );
 
-}
+    }
 
 
-// ============================================================
-// LOCATION SUCCESS
-// ============================================================
+    // =========================================================
+    // CONTINUOUS BROWSER TRACKING
+    // =========================================================
 
-function handleLocation(position) {
+    function startBrowserWatch() {
 
-
-    const latitude =
-        position.coords.latitude;
-
-
-    const longitude =
-        position.coords.longitude;
-
-
-    const accuracy =
-        position.coords.accuracy;
-
-
-    const speed =
-        position.coords.speed;
-
-
-    const heading =
-        position.coords.heading;
-
-
-    const timestamp =
-        new Date(
-            position.timestamp
-        );
-
-
-    statusElement.innerHTML = `
-
-        <div class="success">
-            🟢 GPS Tracking Active
-        </div>
-
-        <br>
-
-        <b>Route:</b>
-        ${route === "cu_nm"
-            ? "CU → NM"
-            : "NM → CU"
+        if (!navigator.geolocation) {
+            return;
         }
 
-        <br>
 
-        <b>Latitude:</b>
-        ${latitude.toFixed(6)}
+        if (browserWatchId !== null) {
 
-        <br>
+            navigator.geolocation.clearWatch(
+                browserWatchId
+            );
 
-        <b>Longitude:</b>
-        ${longitude.toFixed(6)}
-
-        <br>
-
-        <b>Accuracy:</b>
-        ${accuracy.toFixed(1)} meters
-
-        <br>
-
-        <b>Speed:</b>
-        ${
-            speed !== null
-                ? speed.toFixed(2) + " m/s"
-                : "N/A"
         }
 
-        <br>
 
-        <b>Heading:</b>
-        ${
-            heading !== null
-                ? heading.toFixed(0) + "°"
-                : "N/A"
-        }
+        browserWatchId =
+            navigator.geolocation.watchPosition(
 
-        <br>
+                function (position) {
 
-        <b>Updated:</b>
-        ${timestamp.toLocaleTimeString()}
+                    if (!tracking) {
+                        return;
+                    }
 
-    `;
+                    handleBrowserLocation(
+                        position
+                    );
 
+                },
 
-    console.log({
+                function (error) {
 
-        route: route,
+                    console.warn(
+                        "Watch GPS error:",
+                        error
+                    );
 
-        latitude: latitude,
+                    /*
+                     * Don't immediately stop tracking.
+                     *
+                     * Mobile GPS may temporarily lose fix.
+                     */
 
-        longitude: longitude,
+                    if (
+                        error.code ===
+                        error.TIMEOUT
+                    ) {
 
-        accuracy: accuracy,
+                        statusElement.innerHTML =
+                            "🟡 GPS signal পাওয়া যাচ্ছে না।<br>" +
+                            "আবার চেষ্টা করা হচ্ছে...";
 
-        speed: speed,
+                        statusElement.className =
+                            "status warning";
 
-        heading: heading,
+                    }
 
-        timestamp:
-            position.timestamp
+                },
 
-    });
+                {
+                    /*
+                     * Balanced settings for mobile.
+                     */
 
+                    enableHighAccuracy: false,
 
-    // ========================================================
-    // IMPORTANT
-    // ========================================================
-    //
-    // এখনো location server-এ পাঠানো হচ্ছে না।
-    //
-    // Phase 3-এ এখানে:
-    //
-    // fetch("/api/location", ...)
-    //
-    // যোগ করব।
-    //
-    // ========================================================
+                    maximumAge: 5000,
 
-}
+                    timeout: 20000
 
+                }
 
-// ============================================================
-// LOCATION ERROR
-// ============================================================
-
-function handleLocationError(error) {
-
-
-    let message;
-
-
-    switch (error.code) {
-
-        case error.PERMISSION_DENIED:
-
-            message =
-                "❌ Location permission দেওয়া হয়নি।";
-
-            break;
-
-
-        case error.POSITION_UNAVAILABLE:
-
-            message =
-                "❌ GPS location পাওয়া যাচ্ছে না।";
-
-            break;
-
-
-        case error.TIMEOUT:
-
-            message =
-                "❌ GPS request timeout হয়েছে।";
-
-            break;
-
-
-        default:
-
-            message =
-                "❌ Unknown GPS error হয়েছে।";
+            );
 
     }
 
 
-    statusElement.innerHTML =
-        message;
+    // =========================================================
+    // HANDLE BROWSER LOCATION
+    // =========================================================
+
+    function handleBrowserLocation(position) {
+
+        const latitude =
+            position.coords.latitude;
+
+        const longitude =
+            position.coords.longitude;
+
+        const accuracy =
+            position.coords.accuracy;
+
+        const speed =
+            position.coords.speed;
+
+        const heading =
+            position.coords.heading;
 
 
-    statusElement.className =
-        "status error";
-
-
-    startButton.style.display =
-        "block";
-
-
-    stopButton.style.display =
-        "none";
-
-}
-
-
-// ============================================================
-// STOP TRACKING
-// ============================================================
-
-function stopTracking() {
-
-
-    if (watchId !== null) {
-
-        navigator.geolocation.clearWatch(
-            watchId
+        showLocation(
+            latitude,
+            longitude,
+            accuracy,
+            speed,
+            heading
         );
 
-        watchId = null;
     }
 
 
-    statusElement.innerHTML =
-        "⏹️ GPS tracking বন্ধ করা হয়েছে।";
+    // =========================================================
+    // DISPLAY LOCATION
+    // =========================================================
+
+    function showLocation(
+        latitude,
+        longitude,
+        accuracy,
+        speed,
+        heading
+    ) {
+
+        locationBox.style.display =
+            "block";
 
 
-    statusElement.className =
-        "status info";
+        latitudeElement.innerText =
+            Number(latitude).toFixed(6);
 
 
-    startButton.style.display =
-        "block";
+        longitudeElement.innerText =
+            Number(longitude).toFixed(6);
 
 
-    stopButton.style.display =
-        "none";
+        if (
+            accuracy !== null &&
+            accuracy !== undefined
+        ) {
 
-}
+            accuracyElement.innerText =
+                Number(accuracy).toFixed(1)
+                + " m";
 
+        }
+        else {
+
+            accuracyElement.innerText =
+                "N/A";
+
+        }
+
+
+        if (
+            speed !== null &&
+            speed !== undefined &&
+            !isNaN(speed)
+        ) {
+
+            speedElement.innerText =
+                Number(speed).toFixed(2)
+                + " m/s";
+
+        }
+        else {
+
+            speedElement.innerText =
+                "N/A";
+
+        }
+
+
+        updatedElement.innerText =
+            new Date().toLocaleTimeString();
+
+
+        /*
+         * Accuracy indicator
+         */
+
+        let accuracyText =
+            "🟢 GPS Tracking Active";
+
+
+        if (
+            accuracy &&
+            accuracy > 100
+        ) {
+
+            accuracyText =
+                "🟡 GPS Active — accuracy low";
+
+        }
+
+
+        statusElement.innerHTML =
+            `
+            <div class="success">
+                ${accuracyText}
+            </div>
+
+            <br>
+
+            📡 Location successfully received.
+            `;
+
+        statusElement.className =
+            "status info";
+
+
+        console.log({
+
+            route: route,
+
+            latitude: latitude,
+
+            longitude: longitude,
+
+            accuracy: accuracy,
+
+            speed: speed,
+
+            heading: heading,
+
+            source:
+                usingTelegramLocation
+                ? "telegram"
+                : "browser",
+
+            time:
+                Date.now()
+
+        });
+
+
+        /*
+         * =====================================================
+         * PHASE 3
+         * =====================================================
+         *
+         * এখানেই আমরা server-এ location পাঠাব।
+         *
+         * sendLocationToServer({
+         *     route,
+         *     latitude,
+         *     longitude,
+         *     accuracy,
+         *     speed,
+         *     heading
+         * });
+         *
+         * =====================================================
+         */
+
+    }
+
+
+    // =========================================================
+    // ERROR
+    // =========================================================
+
+    function showLocationError(error) {
+
+        let message =
+            "❌ Location পাওয়া যাচ্ছে না।";
+
+
+        if (
+            error.code ===
+            error.PERMISSION_DENIED
+        ) {
+
+            message =
+                "❌ Location permission দেওয়া হয়নি।<br><br>" +
+                "Phone Settings → Telegram → Location → Allow করুন।";
+
+        }
+
+        else if (
+            error.code ===
+            error.POSITION_UNAVAILABLE
+        ) {
+
+            message =
+                "⚠️ GPS location পাওয়া যাচ্ছে না।<br><br>" +
+                "Location/GPS চালু আছে কিনা check করুন।";
+
+        }
+
+        else if (
+            error.code ===
+            error.TIMEOUT
+        ) {
+
+            message =
+                "🟡 GPS response পেতে বেশি সময় লাগছে।<br><br>" +
+                "খোলা জায়গায় গিয়ে আবার চেষ্টা করুন।";
+
+        }
+
+
+        statusElement.innerHTML =
+            message;
+
+        statusElement.className =
+            "status error";
+
+
+        stopButton.style.display =
+            "none";
+
+        retryButton.style.display =
+            "block";
+
+    }
+
+
+    function showError(message) {
+
+        statusElement.innerHTML =
+            message;
+
+        statusElement.className =
+            "status error";
+
+        stopButton.style.display =
+            "none";
+
+        retryButton.style.display =
+            "block";
+
+    }
+
+
+    // =========================================================
+    // STOP TRACKING
+    // =========================================================
+
+    function stopTracking() {
+
+        tracking = false;
+
+
+        /*
+         * Stop browser GPS
+         */
+
+        if (browserWatchId !== null) {
+
+            navigator.geolocation.clearWatch(
+                browserWatchId
+            );
+
+            browserWatchId = null;
+
+        }
+
+
+        usingTelegramLocation = false;
+
+
+        statusElement.innerHTML =
+            "⏹️ GPS tracking বন্ধ করা হয়েছে।";
+
+        statusElement.className =
+            "status info";
+
+
+        startButton.style.display =
+            "block";
+
+        stopButton.style.display =
+            "none";
+
+        retryButton.style.display =
+            "none";
+
+    }
 
 </script>
 
-
 </body>
-
 </html>
