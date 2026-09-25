@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>CU Shuttle Live</title>
+
+
+    <script src="https://telegram.org/js/telegram-web-app.js?63"></script>
+
+
+    <link
+        rel="stylesheet"
+        href="css/style.css"
+    >
+
+</head>
+
+
+<body>
+
+    <div class="container">
+
+        <h1>
+            🚌 CU SHUTTLE LIVE
+        </h1>
+
+
+        <p>
+            Route:
+            <strong id="route">
+                Loading...
+            </strong>
+        </p>
+
+
+        <div class="card">
+
+            <p>
+                GPS:
+                <strong id="location-status">
+                    Not started
+                </strong>
+            </p>
+
+
+            <p>
+                Latitude:
+                <span id="latitude">
+                    -
+                </span>
+            </p>
+
+
+            <p>
+                Longitude:
+                <span id="longitude">
+                    -
+                </span>
+            </p>
+
+
+            <p>
+                Accuracy:
+                <span id="accuracy">
+                    -
+                </span>
+            </p>
+
+        </div>
+
+
+        <div class="card">
+
+            <p>
+                Backend:
+                <strong id="server-status">
+                    Not connected
+                </strong>
+            </p>
+
+        </div>
+
+
+        <button id="start-button">
+            📍 Start Tracking
+        </button>
+
+
+        <button
+            id="stop-button"
+            class="stop"
+        >
+            ⛔ Stop Tracking
+        </button>
+
+    </div>
+
+
+    <!-- JavaScript modules -->
+
+    <script src="js/config.js"></script>
+
+    <script src="js/telegram.js"></script>
+
+    <script src="js/api.js"></script>
+
+    <script src="js/location.js"></script>
+
+    <script src="js/app.js"></script>
+
+</body>
+
+</html>
