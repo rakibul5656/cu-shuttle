@@ -1,7 +1,9 @@
 <!DOCTYPE html>
+
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
 
     <meta
@@ -9,153 +11,594 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>CU Shuttle Tracking</title>
+    <title>CU Shuttle Live</title>
+
+
+    <!-- Telegram Web App SDK -->
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
+
     <style>
 
+        * {
+            box-sizing: border-box;
+        }
+
+
         body {
-            font-family: Arial, sans-serif;
+
+            margin: 0;
+
+            padding: 20px;
+
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+
+            background: #f5f7fa;
+
+            color: #1f2937;
+        }
+
+
+        .container {
+
+            max-width: 500px;
+
+            margin: auto;
+
+            background: white;
+
             padding: 25px;
+
+            border-radius: 16px;
+
+            box-shadow:
+                0 4px 15px
+                rgba(0, 0, 0, 0.08);
+
+        }
+
+
+        h2 {
+
+            margin-top: 0;
+
             text-align: center;
         }
 
-        button {
-            padding: 14px 25px;
-            font-size: 17px;
-            border: none;
+
+        .route {
+
+            text-align: center;
+
+            font-size: 20px;
+
+            font-weight: bold;
+
+            margin: 20px 0;
+
+        }
+
+
+        .status {
+
+            padding: 15px;
+
             border-radius: 10px;
+
+            background: #f1f5f9;
+
+            margin-top: 15px;
+
+            line-height: 1.7;
+
+        }
+
+
+        button {
+
+            width: 100%;
+
+            padding: 15px;
+
+            margin-top: 20px;
+
+            border: none;
+
+            border-radius: 10px;
+
+            font-size: 17px;
+
+            font-weight: bold;
+
             cursor: pointer;
         }
 
-        #location {
-            margin-top: 25px;
-            text-align: left;
+
+        .start {
+
+            background: #2563eb;
+
+            color: white;
+        }
+
+
+        .stop {
+
+            background: #dc2626;
+
+            color: white;
+
+            display: none;
+        }
+
+
+        .success {
+
+            color: #15803d;
+
+            font-weight: bold;
+        }
+
+
+        .error {
+
+            color: #dc2626;
+
+            font-weight: bold;
+        }
+
+
+        .info {
+
+            color: #475569;
         }
 
     </style>
 
 </head>
 
+
 <body>
 
-    <h2>🚌 CU Shuttle Live</h2>
 
-    <p>
-        GPS tracking শুরু করতে নিচের button চাপুন।
-    </p>
+<div class="container">
 
-    <button onclick="startTracking()">
-        📍 Start GPS
+
+    <h2>
+        🚌 CU Shuttle Live
+    </h2>
+
+
+    <div
+        id="route"
+        class="route"
+    >
+        Loading route...
+    </div>
+
+
+    <div
+        id="status"
+        class="status info"
+    >
+        GPS tracking এখনো শুরু হয়নি।
+    </div>
+
+
+    <button
+        id="startButton"
+        class="start"
+        onclick="startTracking()"
+    >
+        📍 Allow Location & Start Tracking
     </button>
 
-    <div id="location">
-        Location পাওয়া যায়নি।
-    </div>
+
+    <button
+        id="stopButton"
+        class="stop"
+        onclick="stopTracking()"
+    >
+        🛑 Stop Tracking
+    </button>
+
+
+</div>
 
 
 <script>
 
-    const tg = window.Telegram.WebApp;
 
-    tg.ready();
-    tg.expand();
+// ============================================================
+// TELEGRAM WEB APP
+// ============================================================
 
-
-    function startTracking() {
-
-        if (!navigator.geolocation) {
-
-            document.getElementById("location").innerHTML =
-                "❌ এই device GPS support করে না।";
-
-            return;
-        }
+const tg = window.Telegram.WebApp;
 
 
+tg.ready();
+
+tg.expand();
+
+
+// ============================================================
+// GET ROUTE
+// ============================================================
+
+const params = new URLSearchParams(
+    window.location.search
+);
+
+
+const route = params.get("route");
+
+
+const routeElement =
+    document.getElementById("route");
+
+
+if (route === "cu_nm") {
+
+    routeElement.innerText =
+        "🚍 Shuttle CU → NM";
+
+}
+
+
+else if (route === "nm_cu") {
+
+    routeElement.innerText =
+        "🚍 Shuttle NM → CU";
+
+}
+
+
+else {
+
+    routeElement.innerText =
+        "⚠️ Route not selected";
+
+}
+
+
+// ============================================================
+// ELEMENTS
+// ============================================================
+
+const statusElement =
+    document.getElementById("status");
+
+
+const startButton =
+    document.getElementById("startButton");
+
+
+const stopButton =
+    document.getElementById("stopButton");
+
+
+// ============================================================
+// GPS WATCH ID
+// ============================================================
+
+let watchId = null;
+
+
+// ============================================================
+// START TRACKING
+// ============================================================
+
+function startTracking() {
+
+
+    // --------------------------------------------------------
+    // Check route
+    // --------------------------------------------------------
+
+    if (
+        route !== "cu_nm" &&
+        route !== "nm_cu"
+    ) {
+
+        statusElement.innerHTML =
+            "❌ Route নির্বাচন করা হয়নি।";
+
+        statusElement.className =
+            "status error";
+
+        return;
+    }
+
+
+    // --------------------------------------------------------
+    // Check GPS support
+    // --------------------------------------------------------
+
+    if (!navigator.geolocation) {
+
+        statusElement.innerHTML =
+            "❌ এই device/browser GPS support করে না।";
+
+        statusElement.className =
+            "status error";
+
+        return;
+    }
+
+
+    // --------------------------------------------------------
+    // UI
+    // --------------------------------------------------------
+
+    statusElement.innerHTML =
+        "📡 GPS location নেওয়া হচ্ছে...";
+
+    statusElement.className =
+        "status info";
+
+
+    startButton.style.display =
+        "none";
+
+
+    stopButton.style.display =
+        "block";
+
+
+    // --------------------------------------------------------
+    // Start GPS watcher
+    // --------------------------------------------------------
+
+    watchId =
         navigator.geolocation.watchPosition(
 
-            function(position) {
+            handleLocation,
 
-                const latitude =
-                    position.coords.latitude;
-
-                const longitude =
-                    position.coords.longitude;
-
-                const accuracy =
-                    position.coords.accuracy;
-
-                const speed =
-                    position.coords.speed;
-
-                const heading =
-                    position.coords.heading;
-
-
-                document.getElementById("location").innerHTML = `
-
-                    <b>📍 Location Found</b>
-
-                    <br><br>
-
-                    Latitude:
-                    ${latitude}
-
-                    <br>
-
-                    Longitude:
-                    ${longitude}
-
-                    <br>
-
-                    Accuracy:
-                    ${accuracy} meters
-
-                    <br>
-
-                    Speed:
-                    ${speed}
-
-                    <br>
-
-                    Heading:
-                    ${heading}
-
-                `;
-
-                console.log({
-                    latitude,
-                    longitude,
-                    accuracy,
-                    speed,
-                    heading
-                });
-
-            },
-
-
-            function(error) {
-
-                document.getElementById("location").innerHTML =
-
-                    "❌ GPS Error: " + error.message;
-
-            },
-
+            handleLocationError,
 
             {
+
                 enableHighAccuracy: true,
+
                 maximumAge: 5000,
-                timeout: 10000
+
+                timeout: 15000
+
             }
 
         );
 
+}
+
+
+// ============================================================
+// LOCATION SUCCESS
+// ============================================================
+
+function handleLocation(position) {
+
+
+    const latitude =
+        position.coords.latitude;
+
+
+    const longitude =
+        position.coords.longitude;
+
+
+    const accuracy =
+        position.coords.accuracy;
+
+
+    const speed =
+        position.coords.speed;
+
+
+    const heading =
+        position.coords.heading;
+
+
+    const timestamp =
+        new Date(
+            position.timestamp
+        );
+
+
+    statusElement.innerHTML = `
+
+        <div class="success">
+            🟢 GPS Tracking Active
+        </div>
+
+        <br>
+
+        <b>Route:</b>
+        ${route === "cu_nm"
+            ? "CU → NM"
+            : "NM → CU"
+        }
+
+        <br>
+
+        <b>Latitude:</b>
+        ${latitude.toFixed(6)}
+
+        <br>
+
+        <b>Longitude:</b>
+        ${longitude.toFixed(6)}
+
+        <br>
+
+        <b>Accuracy:</b>
+        ${accuracy.toFixed(1)} meters
+
+        <br>
+
+        <b>Speed:</b>
+        ${
+            speed !== null
+                ? speed.toFixed(2) + " m/s"
+                : "N/A"
+        }
+
+        <br>
+
+        <b>Heading:</b>
+        ${
+            heading !== null
+                ? heading.toFixed(0) + "°"
+                : "N/A"
+        }
+
+        <br>
+
+        <b>Updated:</b>
+        ${timestamp.toLocaleTimeString()}
+
+    `;
+
+
+    console.log({
+
+        route: route,
+
+        latitude: latitude,
+
+        longitude: longitude,
+
+        accuracy: accuracy,
+
+        speed: speed,
+
+        heading: heading,
+
+        timestamp:
+            position.timestamp
+
+    });
+
+
+    // ========================================================
+    // IMPORTANT
+    // ========================================================
+    //
+    // এখনো location server-এ পাঠানো হচ্ছে না।
+    //
+    // Phase 3-এ এখানে:
+    //
+    // fetch("/api/location", ...)
+    //
+    // যোগ করব।
+    //
+    // ========================================================
+
+}
+
+
+// ============================================================
+// LOCATION ERROR
+// ============================================================
+
+function handleLocationError(error) {
+
+
+    let message;
+
+
+    switch (error.code) {
+
+        case error.PERMISSION_DENIED:
+
+            message =
+                "❌ Location permission দেওয়া হয়নি।";
+
+            break;
+
+
+        case error.POSITION_UNAVAILABLE:
+
+            message =
+                "❌ GPS location পাওয়া যাচ্ছে না।";
+
+            break;
+
+
+        case error.TIMEOUT:
+
+            message =
+                "❌ GPS request timeout হয়েছে।";
+
+            break;
+
+
+        default:
+
+            message =
+                "❌ Unknown GPS error হয়েছে।";
+
     }
 
+
+    statusElement.innerHTML =
+        message;
+
+
+    statusElement.className =
+        "status error";
+
+
+    startButton.style.display =
+        "block";
+
+
+    stopButton.style.display =
+        "none";
+
+}
+
+
+// ============================================================
+// STOP TRACKING
+// ============================================================
+
+function stopTracking() {
+
+
+    if (watchId !== null) {
+
+        navigator.geolocation.clearWatch(
+            watchId
+        );
+
+        watchId = null;
+    }
+
+
+    statusElement.innerHTML =
+        "⏹️ GPS tracking বন্ধ করা হয়েছে।";
+
+
+    statusElement.className =
+        "status info";
+
+
+    startButton.style.display =
+        "block";
+
+
+    stopButton.style.display =
+        "none";
+
+}
+
+
 </script>
+
 
 </body>
 
